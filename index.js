@@ -17,21 +17,26 @@ app.use(`/`, function(req, res) {
     res.render('index');
 });
 
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'Stadvdb35_server0',
+//connection for server0 (central node)
+const server0 = mysql.createConnection({
+    host: process.env.SERVER0_HOST,
+    user: process.env.SERVER0_USER,
+    password: process.env.SERVER0_PASS,
     database: 'stadvdb_mco2'
 });
 
-connection.connect((err) => {
+server0.connect((err) => {
     if (err) {
         console.error('Error connecting to database: ', err);
         return;
     }
     console.log('Connected to database.');
-    connection.end();
-})
+    server0.end();
+});
+
+// const server1 = mysql.createConnection({
+//     host: ''
+// })
 
 app.listen(port, () => {
     console.log(`Server running at http://${hostname}:${port}`);
