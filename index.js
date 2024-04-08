@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 const dotenv = require('dotenv');
 const express = require('express');
-const hbs = require('hbs');
+const path = require('path');
 const Sequelize = require('sequelize');
 
 const app = express();
@@ -10,8 +10,9 @@ dotenv.config();
 port = process.env.PORT;
 hostname = process.env.HOSTNAME;
 
-app.set('view engine', 'hbs');
-
+//set view engine to EJS
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'src', 'views'));
 app.use(express.static('public'));
 
 app.use(`/`, function(req, res) {
@@ -66,6 +67,7 @@ sample_sql.authenticate().then(() => {
     console.error('Unable to connect to Node 1 server: ', error);
 });
 
+//server start
 app.listen(port, () => {
     console.log(`Server running at http://${hostname}:${port}`);
 });
