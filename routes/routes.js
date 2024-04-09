@@ -18,5 +18,6 @@ app.get('/', controller.getIndex);
 app.get('/appts', controller.getAppts);
 app.get('/getOneAppt', controller.getOneAppt);
 app.get('/deleteOneAppt', controller.deleteOneAppt);
+app.post('/updateAppt', controller.updateAppt);
 
 module.exports = app;

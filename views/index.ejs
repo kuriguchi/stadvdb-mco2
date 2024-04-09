@@ -107,26 +107,51 @@
 
                     //add event listener to the edit button
                     document.getElementById("editButton").addEventListener("click", function() {
-                        //editing of the data
-                        document.getElementById("apptidSpan").contentEditable = true;
-                        document.getElementById("timeQueuedSpan").contentEditable = true;
-                        document.getElementById("queueDateSpan").contentEditable = true;
-                        document.getElementById("startTimeSpan").contentEditable = true;
-                        document.getElementById("endTimeSpan").contentEditable = true;
-                        document.getElementById("pxidSpan").contentEditable = true;
-                        document.getElementById("ageSpan").contentEditable = true;
-                        document.getElementById("genderSpan").contentEditable = true;
-                        document.getElementById("doctoridSpan").contentEditable = true;
-                        document.getElementById("hospitalnameSpan").contentEditable = true;
-                        document.getElementById("citySpan").contentEditable = true;
-                        document.getElementById("provinceSpan").contentEditable = true;
-                        document.getElementById("regionNameSpan").contentEditable = true;
+                        //enable editing of the data
+                        enableEditing();
                     });
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
         });
+
+        function enableEditing() {
+            //enable editing of the data
+            document.querySelectorAll('.transaction span').forEach(span => {
+                span.contentEditable = true;
+            });
+
+            //listen for changes in the content of span elements
+            document.querySelectorAll('.transaction span').forEach(span => {
+                span.addEventListener('input', function() {
+                    //send updated data to the server
+                    updateData(span.id, span.innerText);
+                });
+            });
+        }
+
+        function updateData(field, value) {
+            const apptid = document.getElementById('apptidSpan').innerText; //apptid is not editable
+            const data = { apptid, [field]: value }; //construct object with updated field
+
+            //send updated data to the server
+            fetch(`/updateAppt`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update data');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
     </script>
 </body>
 </html>
