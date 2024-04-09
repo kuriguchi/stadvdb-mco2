@@ -13,9 +13,10 @@ const controller =  {
         const node2 = req.node2;
         const node3 = req.node3;
 
-        node1.query ("SELECT * FROM appt")
+        node1.query ("SELECT count(apptid) FROM appt")
             .then((results) => {
                 res.json(results);
+                console.log('RESULTS: ', results[0][0])
             })
             .catch((err) => {
                 res.status(500).send('Internal Server Error');
@@ -26,16 +27,15 @@ const controller =  {
     getOneAppt: function(req, res){
         const apptid = req.query.apptid;
 
-        console.log('APPTID: ', apptid);
-
         const node1 = req.node1;
         const node2 = req.node2;
         const node3 = req.node3; 
 
-        node1.query(`SELECT * FROM appt WHERE apptid LIKE '374453A2EDC54C179E24ABC06083C62F'`)
+        //if(process.env.SERVER0_PORT === port of machine)
+
+        node1.query(`SELECT * FROM appt WHERE apptid LIKE '${apptid}'`)
             .then((result) => {
-                console.log('RETURN');
-                res.json(result);
+                res.json(result[0][0]);
             })
             .catch((err) => {
                 console.log('ERROR: ', err);
