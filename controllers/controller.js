@@ -17,17 +17,48 @@ const controller =  {
         const node2 = req.node2;
         const node3 = req.node3;
 
-        console.log('HOSTNAME: ', currentHost);
-
         //change name of table when using vm
-        node1.query ("SELECT count(apptid) FROM appointments")
-            .then((results) => {
-                res.json(results);
-                console.log('RESULTS: ', results[0][0])
-            })
-            .catch((err) => {
-                res.status(500).send('Internal Server Error');
-            });
+
+        if(currentHost == 'LAPTOP-97MM30R3'){
+            node1.query ("SELECT count(apptid) FROM appt")
+                .then((results) => {
+                    res.json(results);
+                    console.log('RESULTS: ', results[0][0])
+                })  
+                .catch((err) => {
+                    res.status(500).send('Internal Server Error');
+                });
+        } else if(currentHost == 'STADVDB35-Server0'){
+
+            node1.query ("SELECT count(apptid) FROM appointments")
+                .then((results) => {
+                    res.json(results);
+                    console.log('RESULTS: ', results[0][0])
+                })  
+                .catch((err) => {
+                    res.status(500).send('Internal Server Error');
+                });
+        } else if(currentHost == 'STADVDB35-Server1'){
+            node2.query ("SELECT count(apptid) FROM luzon")
+                .then((results) => {
+                    res.json(results);
+                    console.log('RESULTS: ', results[0][0])
+                })  
+                .catch((err) => {
+                    res.status(500).send('Internal Server Error');
+                });
+        } else if(currentHost == 'STADVDB35-Server2'){
+            node3.query ("SELECT count(apptid) FROM south")
+                .then((results) => {
+                    res.json(results);
+                    console.log('RESULTS: ', results[0][0])
+                })  
+                .catch((err) => {
+                    res.status(500).send('Internal Server Error');
+                });
+        } else {
+            console.log('Current Host cannot be found.');
+        }
     },
 
     //get one appt
@@ -38,7 +69,7 @@ const controller =  {
         const node2 = req.node2;
         const node3 = req.node3; 
 
-        node1.query(`SELECT * FROM appointments WHERE apptid LIKE '${apptid}'`)
+        node1.query(`SELECT * FROM appt WHERE apptid LIKE '${apptid}'`)
             .then((result) => {
                 res.json(result[0][0]);
             })
