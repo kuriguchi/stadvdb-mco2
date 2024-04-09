@@ -28,8 +28,6 @@ app.use(function (req, res) {
     res.render('error');
 });
 
-db.connect();
-
 //server start
 app.listen(port, () => {
     console.log(`Server running at http://${hostname}:${port}`);
