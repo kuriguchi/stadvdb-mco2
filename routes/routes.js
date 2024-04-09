@@ -5,10 +5,9 @@ const controller = require('../controllers/controller.js');
 const db = require('../models/db.js');
 
 app.use((req, res, next) => {
-    const { node1, node2, node3 } = db.connect();
-    req.node1 = node1;
-    req.node2 = node2;
-    req.node3 = node3;
+    req.node1 = db.node1;
+    req.node2 = db.node2;
+    req.node3 = db.node3;
     next();
 });
 
