@@ -31,8 +31,6 @@ const controller =  {
         const node2 = req.node2;
         const node3 = req.node3; 
 
-        //if(process.env.SERVER0_PORT === port of machine)
-
         node1.query(`SELECT * FROM appt WHERE apptid LIKE '${apptid}'`)
             .then((result) => {
                 res.json(result[0][0]);
@@ -41,7 +39,23 @@ const controller =  {
                 console.log('ERROR: ', err);
                 res.status(500).send('Internal Server Error');
             });
-    }
+    },
+
+
+    // delete one appt
+    deleteOneAppt: function(req, res){
+        const apptid = req.query.apptid;
+
+        const node1 = req.node1;
+        const node2 = req.node2;
+        const node3 = req.node3; 
+
+        node1.query(`DELETE * FROM appt WHERE apptid LIKE '${apptid}'`)
+            .catch((err) => {
+                console.log('ERROR: ', err);
+                res.status(500).send('Internal Server Error');
+            });
+    },
 };
 
 module.exports = controller;
