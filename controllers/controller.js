@@ -188,6 +188,8 @@ const controller =  {
     // update one appt
     updateOneAppt: function(req, res){
         const data = req.body;
+
+        const currentHost = os.hostname();
         
         let str = data.field
         data.field = str.slice(0, -4);
@@ -196,11 +198,43 @@ const controller =  {
         const node2 = req.node2;
         const node3 = req.node3; 
 
-        node1.query(`UPDATE * FROM appt SET ${data.field} = '${data.value}' WHERE apptid LIKE '${data.apptid}'`)
-            .catch((err) => {
-                console.log('ERROR: ', err);
-                res.status(500).send('Internal Server Error');
-            });
+        switch(currentHost){
+            case 'LAPTOP-97MM30R3':
+                node1.query(`UPDATE appt SET ${data.field} = '${data.value}' WHERE apptid LIKE '${data.apptid}'`)
+                    .catch((err) => {
+                        console.log('ERROR: ', err);
+                        res.status(500).send('Internal Server Error');
+                    });
+            
+                break;
+                    
+            case 'STADVDB35-Server0':
+                node1.query(`UPDATE appt SET ${data.field} = '${data.value}' WHERE apptid LIKE '${data.apptid}'`)
+                    .catch((err) => {
+                        console.log('ERROR: ', err);
+                        res.status(500).send('Internal Server Error');
+                    });
+                
+                break;
+            
+            case 'STADVDB35-Server1': 
+                node2.query(`UPDATE luzon SET ${data.field} = '${data.value}' WHERE apptid LIKE '${data.apptid}'`)
+                    .catch((err) => {
+                        console.log('ERROR: ', err);
+                        res.status(500).send('Internal Server Error');
+                    });  
+                
+                break;
+
+            case 'STADVDB35-Server2':
+                node3.query(`UPDATE south SET ${data.field} = '${data.value}' WHERE apptid LIKE '${data.apptid}'`)
+                    .catch((err) => {
+                        console.log('ERROR: ', err);
+                        res.status(500).send('Internal Server Error');
+                    });  
+
+                break;
+        }
     },
 
     // create one appt
@@ -255,7 +289,7 @@ const controller =  {
 
                 break;
             case 'STADVDB35-Server0':   
-                node1.query(`INSERT INTO appointments VALUES (${data.aptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
+                node1.query(`INSERT INTO appointments VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
                     ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`)
                     .then((result) => {
                         console.log('Inserted One Document: ', result);
@@ -266,7 +300,7 @@ const controller =  {
                     });
                 break;
             case 'STADVDB35-Server1':
-                node2.query(`INSERT INTO luzon VALUES (${data.aptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
+                node2.query(`INSERT INTO luzon VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
                     ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`)
                     .then((result) => {
                         console.log('Inserted One Document: ', result);
@@ -279,7 +313,7 @@ const controller =  {
                 break;
             case 'STADVDB35-Server2':
 
-                node3.query(`INSERT INTO south VALUES (${data.aptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
+                node3.query(`INSERT INTO south VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
                     ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`)
                     .then((result) => {
                         console.log('Inserted One Document: ', result);
@@ -291,7 +325,7 @@ const controller =  {
 
                 break;
             default:
-                node1.query(`INSERT INTO appt VALUES (${data.aptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
+                node1.query(`INSERT INTO appt VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
                     ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`)
                     .then((result) => {
                         console.log('Inserted One Document: ', result);
