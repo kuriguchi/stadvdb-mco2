@@ -38,7 +38,7 @@ const controller =  {
         const node2 = req.node2;
         const node3 = req.node3; 
 
-        node1.query(`SELECT * FROM appt WHERE apptid LIKE '${apptid}'`)
+        node1.query(`SELECT * FROM appointments WHERE apptid LIKE '${apptid}'`)
             .then((result) => {
                 res.json(result[0][0]);
             })
