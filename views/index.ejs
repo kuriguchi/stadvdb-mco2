@@ -110,6 +110,13 @@
                         //enable editing of the data
                         enableEditing();
                     });
+
+                    //add event listener to the delete button
+                    document.getElementById("deleteButton").addEventListener("click", function() {
+                        //delete the data
+                        deleteData(data.apptid);
+                    });
+
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -147,6 +154,23 @@
                 if (!response.ok) {
                     throw new Error('Failed to update data');
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function deleteData(apptid) {
+            //send delete request to the server
+            fetch(`/deleteOneAppt?apptid=${apptid}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete data');
+                }
+                //clear result div after deletion
+                document.getElementById("result").innerHTML = '';
             })
             .catch(error => {
                 console.error('Error:', error);
