@@ -63,46 +63,65 @@
     <div class="container">
         <h1>Global Concurrency Control and Replication Simulation</h1>
 
-        <!-- Form to input apptid -->
+        <!-- form to input apptid -->
         <form id="inputForm">
             <label for="apptid">Enter ApptID:</label>
             <input type="text" id="apptid" name="apptid" placeholder="Enter ApptID">
             <input type="submit" value="Submit">
         </form>
 
-        <!-- Display the result -->
+        <!-- display the result -->
         <div id="result"></div>
     </div>
 
     <script>
-        // Submit form using AJAX
+        //submit form using AJAX
         document.getElementById("inputForm").addEventListener("submit", function(event) {
             event.preventDefault();
             const apptid = document.getElementById("apptid").value;
 
-            // Send request to backend with the entered apptid
+            //send request to backend with the entered apptid
             fetch(`/getOneAppt?apptid=${apptid}`)
                 .then(response => response.json())
                 .then(data => {
-                    // Display the result in the 'result' div
+                    //display the result in the 'result' div
                     document.getElementById("result").innerHTML = `
-                        <div class="transaction">
+                        <div class="transaction" id="transaction">
                             <h2>Transaction</h2>
-                            <p>ApptID: ${data.apptid}</p>
-                            <p>TimeQueued: ${data.TimeQueued}</p>
-                            <p>QueueDate: ${data.QueueDate}</p>
-                            <p>StartTime: ${data.StartTime}</p>
-                            <p>EndTime: ${data.EndTime}</p>
-                            <p>pxid: ${data.pxid}</p>
-                            <p>age: ${data.age}</p>
-                            <p>gender: ${data.gender}</p>
-                            <p>doctorid: ${data.doctorid}</p>
-                            <p>hospitalname: ${data.hospitalname}</p>
-                            <p>City: ${data.City}</p>
-                            <p>Province: ${data.Province}</p>
-                            <p>RegionName: ${data.RegionName}</p>
+                            <p>ApptID: <span id="apptidSpan">${data.apptid}</span></p>
+                            <p>TimeQueued: <span id="timeQueuedSpan">${data.TimeQueued}</span></p>
+                            <p>QueueDate: <span id="queueDateSpan">${data.QueueDate}</span></p>
+                            <p>StartTime: <span id="startTimeSpan">${data.StartTime}</span></p>
+                            <p>EndTime: <span id="endTimeSpan">${data.EndTime}</span></p>
+                            <p>pxid: <span id="pxidSpan">${data.pxid}</span></p>
+                            <p>age: <span id="ageSpan">${data.age}</span></p>
+                            <p>gender: <span id="genderSpan">${data.gender}</span></p>
+                            <p>doctorid: <span id="doctoridSpan">${data.doctorid}</span></p>
+                            <p>hospitalname: <span id="hospitalnameSpan">${data.hospitalname}</span></p>
+                            <p>City: <span id="citySpan">${data.City}</span></p>
+                            <p>Province: <span id="provinceSpan">${data.Province}</span></p>
+                            <p>RegionName: <span id="regionNameSpan">${data.RegionName}</span></p>
+                            <button id="editButton">Edit</button>
                         </div>
                     `;
+
+                    //add event listener to the edit button
+                    document.getElementById("editButton").addEventListener("click", function() {
+                        //editing of the data
+                        document.getElementById("apptidSpan").contentEditable = true;
+                        document.getElementById("timeQueuedSpan").contentEditable = true;
+                        document.getElementById("queueDateSpan").contentEditable = true;
+                        document.getElementById("startTimeSpan").contentEditable = true;
+                        document.getElementById("endTimeSpan").contentEditable = true;
+                        document.getElementById("pxidSpan").contentEditable = true;
+                        document.getElementById("ageSpan").contentEditable = true;
+                        document.getElementById("genderSpan").contentEditable = true;
+                        document.getElementById("doctoridSpan").contentEditable = true;
+                        document.getElementById("hospitalnameSpan").contentEditable = true;
+                        document.getElementById("citySpan").contentEditable = true;
+                        document.getElementById("provinceSpan").contentEditable = true;
+                        document.getElementById("regionNameSpan").contentEditable = true;
+                    });
                 })
                 .catch(error => {
                     console.error('Error:', error);
