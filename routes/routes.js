@@ -19,5 +19,6 @@ app.get('/appts', controller.getAppts);
 app.get('/getOneAppt', controller.getOneAppt);
 app.get('/deleteOneAppt', controller.deleteOneAppt);
 app.post('/updateOneAppt', controller.updateOneAppt);
+app.post('/createOneAppt', controller.createOneAppt);
 
 module.exports = app;

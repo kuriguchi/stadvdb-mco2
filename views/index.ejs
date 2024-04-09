@@ -133,7 +133,7 @@
 
         function updateData(field, value) {
             const apptid = document.getElementById('apptidSpan').innerText; //apptid is not editable
-            const data = { apptid, [field]: value }; //construct object with updated field
+            const data = { apptid, field, value }; //construct object with updated field
 
             //send updated data to the server
             fetch(`/updateOneAppt`, {

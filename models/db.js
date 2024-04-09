@@ -5,12 +5,13 @@ const Sequelize = require('sequelize');
 dotenv.config();
 
     //connection pool for node1 (central node)
+    //change database name and host when using vm
 const node1 = new Sequelize(
-    'central_nodes',
+    'central_nodes', 
     process.env.SERVER0_USER,
     process.env.SERVER0_PASS,
     {
-        host: 'localhost',
+        host: 'localhost', 
         dialect: 'mysql'
     }
 );
