@@ -19,7 +19,8 @@ const controller =  {
 
         console.log('HOSTNAME: ', currentHost);
 
-        node1.query ("SELECT count(apptid) FROM appt")
+        //change name of table when using vm
+        node1.query ("SELECT count(apptid) FROM appointments")
             .then((results) => {
                 res.json(results);
                 console.log('RESULTS: ', results[0][0])
