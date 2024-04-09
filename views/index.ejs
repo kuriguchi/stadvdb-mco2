@@ -136,7 +136,7 @@
             const data = { apptid, [field]: value }; //construct object with updated field
 
             //send updated data to the server
-            fetch(`/updateAppt`, {
+            fetch(`/updateOneAppt`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
