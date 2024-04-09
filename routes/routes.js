@@ -16,5 +16,6 @@ app.get('/', controller.getIndex);
 
 //CRUD functionalities
 app.get('/appts', controller.getAppts);
+app.get('/getOneAppt', controller.getOneAppt);
 
 module.exports = app;

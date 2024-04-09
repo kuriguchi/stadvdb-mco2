@@ -81,7 +81,7 @@
             const apptid = document.getElementById("apptid").value;
 
             // Send request to backend with the entered apptid
-            fetch(`/appts?apptid=${apptid}`)
+            fetch(`/getOneAppt?apptid=${apptid}`)
                 .then(response => response.json())
                 .then(data => {
                     // Display the result in the 'result' div
