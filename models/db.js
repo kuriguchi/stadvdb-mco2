@@ -7,31 +7,31 @@ dotenv.config();
     //connection pool for node1 (central node)
     //change database name and host when using vm
 const node1 = new Sequelize(
-    'central_nodes', 
+    'stadvdb_mco2', 
     process.env.SERVER0_USER,
     process.env.SERVER0_PASS,
     {
-        host: 'localhost', 
+        host: process.env.SERVER0_HOST, 
         dialect: 'mysql'
     }
 );
 
 const node2 = new Sequelize(
-    'luzon',
+    'stadvdb_mco2',
     process.env.SERVER1_USER,
     process.env.SERVER1_PASS,
     {
-        host: 'localhost',
+        host: process.env.SERVER1_HOST,
         dialect: 'mysql'
     }
 );
 
 const node3 = new Sequelize(
-    'south',
+    'stadvdb_mco2',
     process.env.SERVER2_USER,
     process.env.SERVER2_PASS,
     {
-        host: 'localhost',
+        host: process.env.SERVER2_HOST,
         dialect: 'mysql'
     }
 );
