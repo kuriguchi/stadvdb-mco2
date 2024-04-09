@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Concurrency Control and Replication Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .transaction {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .transaction h2 {
+            margin-top: 0;
+        }
+        .transaction p {
+            margin: 5px 0;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Global Concurrency Control and Replication Simulation</h1>
+
+        <!-- Form to input apptid -->
+        <form id="inputForm">
+            <label for="apptid">Enter ApptID:</label>
+            <input type="text" id="apptid" name="apptid" placeholder="Enter ApptID">
+            <input type="submit" value="Submit">
+        </form>
+
+        <!-- Display the result -->
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Submit form using AJAX
+        document.getElementById("inputForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const apptid = document.getElementById("apptid").value;
+
+            // Send request to backend with the entered apptid
+            fetch(`/appts?apptid=${apptid}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Display the result in the 'result' div
+                    document.getElementById("result").innerHTML = `
+                        <div class="transaction">
+                            <h2>Transaction</h2>
+                            <p>ApptID: ${data.apptid}</p>
+                            <p>TimeQueued: ${data.TimeQueued}</p>
+                            <p>QueueDate: ${data.QueueDate}</p>
+                            <p>StartTime: ${data.StartTime}</p>
+                            <p>EndTime: ${data.EndTime}</p>
+                            <p>pxid: ${data.pxid}</p>
+                            <p>age: ${data.age}</p>
+                            <p>gender: ${data.gender}</p>
+                            <p>doctorid: ${data.doctorid}</p>
+                            <p>hospitalname: ${data.hospitalname}</p>
+                            <p>City: ${data.City}</p>
+                            <p>Province: ${data.Province}</p>
+                            <p>RegionName: ${data.RegionName}</p>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+</html>

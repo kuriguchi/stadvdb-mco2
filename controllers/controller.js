@@ -18,7 +18,7 @@ const controller =  {
                 res.json(results);
             })
             .catch((err) => {
-                res.status(500).sent('Error');
+                res.status(500).send('Internal Server Error');
             });
     }
 };
