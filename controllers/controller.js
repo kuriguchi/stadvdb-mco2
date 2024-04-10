@@ -1,4 +1,5 @@
 const os = require('os');
+const { Sequelize } = require('sequelize');
 
 const luzon = {
     ncr: 'National Capital Region (NCR)',
@@ -12,6 +13,9 @@ const vizmin = {
 };
 
 var regionName = '';
+
+
+
 
 const controller =  {
     getFavicon: function(req, res){
@@ -82,65 +86,57 @@ const controller =  {
 
         const node1 = req.node1;
         const node2 = req.node2;
-        const node3 = req.node3; 
+        const node3 = req.node3;
+
+        const readAppt = (node, apptid) => {
+            node.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+                .then((t) => {
+                    return node.query(`SELECT * FROM appointments WHERE apptid LIKE '${apptid}'`, {
+                        transaction: t
+                    })
+                        .then(([results, metadata]) => {
+                            return t.commit().then(() => {
+                                console.log('Transaction committed successfully.'); 
+                                res.json(results[0]);
+        
+                                console.log(results[0])
+                            });
+                        })
+        
+                        .catch((err) => {
+                            return t.rollback().then(() => {
+                                console.log('Transaction Failed: ', err);
+                            });
+                        });
+                })
+        
+                .catch((err) => {
+                    console.log('Error starting transaction: ', err);
+                });
+        };
 
         switch(currentHost){
             case 'LAPTOP-97MM30R3':
-                node1.query(`SELECT * FROM appt WHERE apptid LIKE '${apptid}'`)
-                    .then((result) => {
-                        res.json(result[0][0]);
-                    })
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
+                readAppt(node1, apptid);
 
                 break;
             case 'STADVDB35-Server0':
-                node1.query(`SELECT * FROM appointments WHERE apptid LIKE '${apptid}'`)
-                    .then((result) => {
-                        res.json(result[0][0]);
-                    })
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
-
+                readAppt(node1, apptid);
+                    
                 break;
 
             case 'STADVDB35-Server1':
-                node2.query(`SELECT * FROM luzon WHERE apptid LIKE '${apptid}'`)
-                    .then((result) => {
-                        res.json(result[0][0]);
-                    })
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
+                readAppt(node2, apptid);
 
                 break;
 
             case 'STADVDB35-Server2':
-                node3.query(`SELECT * FROM south WHERE apptid LIKE '${apptid}'`)
-                    .then((result) => {
-                        res.json(result[0][0]);
-                    })
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
+                readAppt(node3, apptid);
 
                 break;
 
             default:
-                node1.query(`SELECT * FROM appt WHERE apptid LIKE '${apptid}'`)
-                    .then((result) => {
-                        res.json(result[0][0]);
-                    })
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
+                readAppt(node1, apptid);
                 break;
         }
     },
@@ -152,88 +148,71 @@ const controller =  {
 
         const apptid = req.query.apptid;
 
-        const node1 = req.node1;
-        const node2 = req.node2;
-        const node3 = req.node3; 
+        const nodes = {
+            node1: req.node1,
+            node2: req.node2,
+            node3: req.node3
+        };
 
-        if(currentHost == 'LAPTOP-97MM30R3'){
-            node1.query(`DELETE FROM appt WHERE apptid LIKE '${apptid}'`)
-                .catch((err) => {
-                    console.log('ERROR: ', err);
-                    res.status(500).send('Internal Server Error');
-                });
-        } else if(currentHost == 'STADVDB35-Server0'){
-            node1.query(`DELETE FROM appointments WHERE apptid LIKE '${apptid}'`)
-                .catch((err) => {
-                    console.log('ERROR: ', err);
-                    res.status(500).send('Internal Server Error');
-                });
-        } else if(currentHost == 'STADVDB35-Server1'){
-            node2.query(`DELETE FROM luzon WHERE apptid LIKE '${apptid}'`)
-                .catch((err) => {
-                    console.log('ERROR: ', err);
-                    res.status(500).send('Internal Server Error');
-                });
-        } else if(currentHost == 'STADVDB35-Server2'){
-            node3.query(`DELETE FROM south WHERE apptid LIKE '${apptid}'`)
-                .catch((err) => {
-                    console.log('ERROR: ', err);
-                    res.status(500).send('Internal Server Error');
-                });
-        } else {
-            console.log('Current Host not found.');
+        for(let key in nodes) {
+            nodes[key].transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+                    .then((t) => {
+                        return nodes[key].query(`DELETE FROM appointments WHERE apptid LIKE '${apptid}'`, {
+                            transaction: t
+                        })
+                            .then(([results, metadata]) => {
+                                return t.commit().then(() => {
+                                    console.log('Transaction committed successfully.'); 
+                                });
+                            })
+                            .catch((err) => {
+                                return t.rollback().then(() => {
+                                    console.log('Transaction Failed: ', err);
+                                });
+                            });
+                    })
+                    .catch((err) => {
+                        console.log('Error starting transaction: ', err);
+                    });
         }
     },
 
     // update one appt
     updateOneAppt: function(req, res){
         const data = req.body;
-
-        const currentHost = os.hostname();
         
         let str = data.field
         data.field = str.slice(0, -4);
 
-        const node1 = req.node1;
-        const node2 = req.node2;
-        const node3 = req.node3; 
+        const nodes = {
+            node1: req.node1,
+            node2: req.node2,
+            node3: req.node3
+        };
 
-        switch(currentHost){
-            case 'LAPTOP-97MM30R3':
-                node1.query(`UPDATE appt SET ${data.field} = '${data.value}' WHERE apptid LIKE '${data.apptid}'`)
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
-            
-                break;
-                    
-            case 'STADVDB35-Server0':
-                node1.query(`UPDATE appt SET ${data.field} = '${data.value}' WHERE apptid LIKE '${data.apptid}'`)
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
-                
-                break;
-            
-            case 'STADVDB35-Server1': 
-                node2.query(`UPDATE luzon SET ${data.field} = '${data.value}' WHERE apptid LIKE '${data.apptid}'`)
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });  
-                
-                break;
+        for(let key in nodes){
+            nodes[key].transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+                .then((t) => {
+                    return nodes[key].query(`UPDATE appointments SET ${data.field} = '${data.value}' WHERE apptid LIKE '${data.apptid}'`, {
+                        transaction: t
+                    })
+                        .then(([results, metadata]) => {
+                            return t.commit().then(() => {
+                                console.log('Transaction committed successfully.'); 
+                                res.json(results[0]);
+                            });
+                        })
 
-            case 'STADVDB35-Server2':
-                node3.query(`UPDATE south SET ${data.field} = '${data.value}' WHERE apptid LIKE '${data.apptid}'`)
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });  
+                        .catch((err) => {
+                            return t.rollback().then(() => {
+                                console.log('Transaction Failed: ', err);
+                            });
+                        });
+                })
 
-                break;
+                .catch((err) => {
+                    console.log('Error starting transaction: ', err);
+                });
         }
     },
 
@@ -241,16 +220,21 @@ const controller =  {
     createOneAppt: function(req, res){
         const data = req.body;
 
-        const currentHost = os.hostname();
-
         const node1 = req.node1;
         const node2 = req.node2;
         const node3 = req.node3; 
 
-        switch(currentHost){
-            case 'LAPTOP-97MM30R3':
+        const nodes = {
+            node1: req.node1,
+            node2: req.node2,
+            node3: req.node3
+        };
 
-                node1.query(`INSERT INTO appt VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
+        const regionSelector = (region) => {
+            const isLuzon = 0;
+
+            if(data.region in luzon){
+                node2.query(`INSERT INTO luzon VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
                     '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.city}', '${data.Province}', '${data.RegionName}')`)
                     .then((result) => {
                         console.log('Inserted One Document: ', result);
@@ -259,86 +243,236 @@ const controller =  {
                         console.log('ERROR: ', err);
                         res.status(500).send('Internal Server Error');
                     });
-
-                //add to luzon if location is in luzon
-                if(data.RegionName in luzon){
-                    node2.query(`INSERT INTO luzon VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
-                        '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.city}', '${data.Province}', '${data.RegionName}')`)
-                        .then((result) => {
-                            console.log('Inserted One Document: ', result);
-                        })
-                        .catch((err) => {
-                            console.log('ERROR: ', err);
-                            res.status(500).send('Internal Server Error');
-                        });
-                }
-
-                if(data.RegionName in vizmin){
-                    node3.query(`INSERT INTO south VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
-                        '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.city}', '${data.Province}', '${data.RegionName}')`)
-                        .then((result) => {
-                            console.log('Inserted One Document: ', result);
-                        })
-                        .catch((err) => {
-                            console.log('ERROR: ', err);
-                            res.status(500).send('Internal Server Error');
-                        });
-                }
-
-                //add to south if location is south
-
-                break;
-            case 'STADVDB35-Server0':   
-                node1.query(`INSERT INTO appointments VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
-                    ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`)
-                    .then((result) => {
-                        console.log('Inserted One Document: ', result);
-                    })
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
-                break;
-            case 'STADVDB35-Server1':
-                node2.query(`INSERT INTO luzon VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
-                    ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`)
-                    .then((result) => {
-                        console.log('Inserted One Document: ', result);
-                    })
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
+            } else {
                 
-                break;
-            case 'STADVDB35-Server2':
-
-                node3.query(`INSERT INTO south VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
-                    ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`)
-                    .then((result) => {
-                        console.log('Inserted One Document: ', result);
-                    })
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
-
-                break;
-            default:
-                node1.query(`INSERT INTO appt VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
-                    ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`)
-                    .then((result) => {
-                        console.log('Inserted One Document: ', result);
-                    })
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
-
-                break;
-            
+            }
         }
-    },
-};
+
+        //update central first
+        node1.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+            .then((t) => {
+                if(data.RegionName in luzon) {
+                    
+                }
+                return node1.query(`INSERT INTO appointments VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
+                    ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`, {
+                    transaction: t
+                })
+                    .then(([results, metadata]) => {
+                        return t.commit().then(() => {
+                            console.log('Transaction committed successfully.'); 
+                        });
+                    })
+                    .catch((err) => {
+                        return t.rollback().then(() => {
+                            console.log('Transaction Failed: ', err);
+                        });
+                    });
+            })
+            .catch((err) => {
+                console.log('Error starting transaction: ', err);
+            });
+
+        //update 
+        regionSelector(data.RegionName);
+
+        
+
+        // switch(currentHost){
+        //     case 'LAPTOP-97MM30R3':
+
+        //         node1.query(`INSERT INTO appt VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
+        //             '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.city}', '${data.Province}', '${data.RegionName}')`)
+        //             .then((result) => {
+        //                 console.log('Inserted One Document: ', result);
+
+
+        //             })
+        //             .catch((err) => {
+        //                 console.log('ERROR: ', err);
+        //                 res.status(500).send('Internal Server Error');
+        //             });
+
+        //         //add to luzon if location is in luzon
+        //         if(data.RegionName in luzon){
+        //             node2.query(`INSERT INTO luzon VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
+        //                 '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.city}', '${data.Province}', '${data.RegionName}')`)
+        //                 .then((result) => {
+        //                     console.log('Inserted One Document: ', result);
+        //                 })
+        //                 .catch((err) => {
+        //                     console.log('ERROR: ', err);
+        //                     res.status(500).send('Internal Server Error');
+        //                 });
+        //         }
+
+        //         if(data.RegionName in vizmin){
+        //             node3.query(`INSERT INTO south VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
+        //                 '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.city}', '${data.Province}', '${data.RegionName}')`)
+        //                 .then((result) => {
+        //                     console.log('Inserted One Document: ', result);
+        //                 })
+        //                 .catch((err) => {
+        //                     console.log('ERROR: ', err);
+        //                     res.status(500).send('Internal Server Error');
+        //                 });
+        //         }
+
+        //         //add to south if location is south
+
+        //         break;
+        //     case 'STADVDB35-Server0':
+        //         node1.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+        //             .then((t) => {
+        //                 if(data.RegionName in luzon) {
+                            
+        //                 }
+        //                 return node1.query(`INSERT INTO appointments VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
+        //                     ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`, {
+        //                     transaction: t
+        //                 })
+        //                     .then(([results, metadata]) => {
+        //                         return t.commit().then(() => {
+        //                             console.log('Transaction committed successfully.'); 
+        //                         });
+        //                     })
+        //                     .catch((err) => {
+        //                         return t.rollback().then(() => {
+        //                             console.log('Transaction Failed: ', err);
+        //                         });
+        //                     });
+        //             })
+        //             .catch((err) => {
+        //                 console.log('Error starting transaction: ', err);
+        //             });
+        //         break;
+        //     case 'STADVDB35-Server1':
+        //         node2.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+        //             .then((t) => {
+        //                 return node2.query(`INSERT INTO luzon VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
+        //                     ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`, {
+        //                     transaction: t
+        //                 })
+        //                     .then(([results, metadata]) => {
+        //                         return t.commit().then(() => {
+        //                             console.log('Transaction committed successfully.'); 
+        //                         });
+        //                     })
+        //                     .catch((err) => {
+        //                         return t.rollback().then(() => {
+        //                             console.log('Transaction Failed: ', err);
+        //                         });
+        //                     });
+        //             })
+        //             .catch((err) => {
+        //                 console.log('Error starting transaction: ', err);
+        //             });
+        //         break;
+        //     case 'STADVDB35-Server2':
+        //         node3.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+        //         .then((t) => {
+        //             return node3.query(`INSERT INTO south VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
+        //                 ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`, {
+        //                 transaction: t
+        //             })
+        //                 .then(([results, metadata]) => {
+        //                     return t.commit().then(() => {
+        //                         console.log('Transaction committed successfully.'); 
+        //                     });
+        //                 })
+        //                 .catch((err) => {
+        //                     return t.rollback().then(() => {
+        //                         console.log('Transaction Failed: ', err);
+        //                     });
+        //                 });
+        //         })
+        //         .catch((err) => {
+        //             console.log('Error starting transaction: ', err);
+        //         });
+        //         break;
+        //     default:
+        //         node1.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+        //             .then((t) => {
+        //                 return node1.query(`INSERT INTO appointments VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
+        //                     ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`, {
+        //                     transaction: t
+        //                 })
+        //                     .then(([results, metadata]) => {
+        //                         return t.commit().then(() => {
+        //                             console.log('Transaction committed successfully.'); 
+        //                         });
+        //                     })
+        //                     .catch((err) => {
+        //                         return t.rollback().then(() => {
+        //                             console.log('Transaction Failed: ', err);
+        //                         });
+        //                     });
+        //             })
+        //             .catch((err) => {
+        //                 console.log('Error starting transaction: ', err);
+        //             });           
+
+
+    // TEST AREA
+
+    // Concurrent Read Test (Step 2 Case 1)
+    // testReadConcurrency: function(req, res){
+    //     const apptid = 'ABC123' // Change value to a real appt id in luzon
+    //     const node1 = req.node1;
+    //     const node2 = req.node2;
+
+    //     // this should run all transactions concurrently
+    //     Promise.all([
+    //         node1.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE})
+    //         .then((t) => {
+    //             // Get the appointment and sleep for 10 seconds
+    //             return node1.query(`SELECT * FROM appointments WHERE apptid LIKE '${apptid}' DO SLEEP(10000)`, {
+    //                 transaction: t
+    //             })
+    //                 .then(([results, metadata]) => {
+    //                     return t.commit().then(() => {
+    //                         const n1_result = results[0];
+    //                         console.log("Node 1 Result:", n1_result);
+    //                     });
+    //                 })
+
+    //                 .catch((err) => {
+    //                     return t.rollback().then(() => {
+    //                         console.log('Transaction Failed: ', err);
+    //                     });
+    //                 });
+    //         }),
+
+    //         node2.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE})
+    //         .then((t) => {
+    //             // Get the appointment and sleep for 10 seconds
+    //             return node2.query(`SELECT * FROM luzon WHERE apptid LIKE '${apptid}' DO SLEEP(10000)`, {
+    //                 transaction: t
+    //             })
+    //                 .then(([results, metadata]) => {
+    //                     return t.commit().then(() => {
+    //                         const n2_result = results[0];
+    //                         console.log("Node 2 Result:", n2_result);
+    //                     });
+    //                 })
+
+    //                 .catch((err) => {
+    //                     return t.rollback().then(() => {
+    //                         console.log('Transaction Failed: ', err);
+    //                     });
+    //                 });
+    //         })
+    //     ])
+    //     .then(() => {
+    //         // Send response or perform further actions
+    //         res.send("Transactions completed successfully");
+    //     })
+    //     .catch((err) => {
+    //         // Handle errors if any
+    //         console.error("Error:", err);
+    //         res.status(500).send("Error occurred during transactions");
+    //     });
+    }
+}
 
 module.exports = controller;

@@ -11,7 +11,8 @@ const node1 = new Sequelize(
     process.env.SERVER0_USER,
     process.env.SERVER0_PASS,
     {
-        host: process.env.SERVER0_HOST, 
+        host: 'ccscloud.dlsu.edu.ph', 
+        port: process.env.SERVER0_PORT,
         dialect: 'mysql'
     }
 );
@@ -21,7 +22,8 @@ const node2 = new Sequelize(
     process.env.SERVER1_USER,
     process.env.SERVER1_PASS,
     {
-        host: process.env.SERVER1_HOST,
+        host: 'ccscloud.dlsu.edu.ph', 
+        port: process.env.SERVER1_PORT,
         dialect: 'mysql'
     }
 );
@@ -31,7 +33,8 @@ const node3 = new Sequelize(
     process.env.SERVER2_USER,
     process.env.SERVER2_PASS,
     {
-        host: process.env.SERVER2_HOST,
+        host: 'ccscloud.dlsu.edu.ph', 
+        port: process.env.SERVER2_PORT,
         dialect: 'mysql'
     }
 );
@@ -72,6 +75,14 @@ node1.authenticate().then(() => {
 }).catch((error) => {
     console.error('Unable to connect to Node 1 server: ', error);
 });
+
+// node1.close()
+//     .then(() => {
+//         console.log('Connection closed successfully.');
+//     })
+//     .catch(err => {
+//         console.error('Error occurred while closing connection:', err);
+//     });
 
 node2.authenticate().then(() => {
     console.log('Connection to Node 2 server has been established successfully.');
