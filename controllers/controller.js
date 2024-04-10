@@ -154,6 +154,14 @@ const controller =  {
             node3: req.node3
         };
 
+        // node1.close()
+        //     .then(() => {
+        //         console.log('Connection closed successfully.');
+        //     })
+        //     .catch(err => {
+        //         console.error('Error closing connection:', err);
+        //     });
+
         for(let key in nodes) {
             nodes[key].transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
                     .then((t) => {
@@ -163,6 +171,7 @@ const controller =  {
                             .then(([results, metadata]) => {
                                 return t.commit().then(() => {
                                     console.log('Transaction committed successfully.'); 
+                                    
                                 });
                             })
                             .catch((err) => {
@@ -246,7 +255,7 @@ const controller =  {
                     })
                     .catch((err) => {
                         return t.rollback().then(() => {
-                            console.log('Transaction Failed: ', err);
+                            console.log(' FailTransactioned: ', err);
                         });
                     });
             })
