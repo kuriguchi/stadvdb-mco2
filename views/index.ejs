@@ -73,6 +73,12 @@
         <!-- display the result -->
         <div id="result"></div>
 
+        <!-- delete and edit buttons -->
+        <div id="buttonContainer" style="display: none;">
+            <button id="editButton">Edit</button>
+            <button id="deleteButton">Delete</button>
+        </div>
+
         <!-- Button to toggle create form -->
         <button id="toggleCreateForm">Create New Appointment</button>
 
@@ -177,6 +183,9 @@
                             <button id="editButton">Edit</button>
                         </div>
                     `;
+
+                    //display delete and edit buttons
+                    document.getElementById("buttonContainer").style.display = "block";
 
                     //edit button
                     document.getElementById("editButton").addEventListener("click", function() {
