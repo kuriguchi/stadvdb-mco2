@@ -8,7 +8,7 @@ const luzon = {
     ir: 'Ilocos Region (I)'
 };
 
-const vizmin = {
+const south = {
     cr: 'SOCCSKSARGEN (Cotabato Region) (XII)'
 };
 
@@ -220,6 +220,8 @@ const controller =  {
     createOneAppt: function(req, res){
         const data = req.body;
 
+        const hasValue = (obj, value) => Object.values(obj).includes(value);
+
         const node1 = req.node1;
         const node2 = req.node2;
         const node3 = req.node3; 
@@ -230,32 +232,11 @@ const controller =  {
             node3: req.node3
         };
 
-        const regionSelector = (region) => {
-            const isLuzon = 0;
-
-            if(data.region in luzon){
-                node2.query(`INSERT INTO luzon VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
-                    '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.city}', '${data.Province}', '${data.RegionName}')`)
-                    .then((result) => {
-                        console.log('Inserted One Document: ', result);
-                    })
-                    .catch((err) => {
-                        console.log('ERROR: ', err);
-                        res.status(500).send('Internal Server Error');
-                    });
-            } else {
-                
-            }
-        }
-
         //update central first
         node1.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
             .then((t) => {
-                if(data.RegionName in luzon) {
-                    
-                }
-                return node1.query(`INSERT INTO appointments VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
-                    ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`, {
+                return node1.query(`INSERT INTO appointments VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
+                    '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.City}', '${data.Province}', '${data.RegionName}')`, {
                     transaction: t
                 })
                     .then(([results, metadata]) => {
@@ -272,145 +253,52 @@ const controller =  {
             .catch((err) => {
                 console.log('Error starting transaction: ', err);
             });
-
-        //update 
-        regionSelector(data.RegionName);
-
         
-
-        // switch(currentHost){
-        //     case 'LAPTOP-97MM30R3':
-
-        //         node1.query(`INSERT INTO appt VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
-        //             '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.city}', '${data.Province}', '${data.RegionName}')`)
-        //             .then((result) => {
-        //                 console.log('Inserted One Document: ', result);
-
-
-        //             })
-        //             .catch((err) => {
-        //                 console.log('ERROR: ', err);
-        //                 res.status(500).send('Internal Server Error');
-        //             });
-
-        //         //add to luzon if location is in luzon
-        //         if(data.RegionName in luzon){
-        //             node2.query(`INSERT INTO luzon VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
-        //                 '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.city}', '${data.Province}', '${data.RegionName}')`)
-        //                 .then((result) => {
-        //                     console.log('Inserted One Document: ', result);
-        //                 })
-        //                 .catch((err) => {
-        //                     console.log('ERROR: ', err);
-        //                     res.status(500).send('Internal Server Error');
-        //                 });
-        //         }
-
-        //         if(data.RegionName in vizmin){
-        //             node3.query(`INSERT INTO south VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
-        //                 '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.city}', '${data.Province}', '${data.RegionName}')`)
-        //                 .then((result) => {
-        //                     console.log('Inserted One Document: ', result);
-        //                 })
-        //                 .catch((err) => {
-        //                     console.log('ERROR: ', err);
-        //                     res.status(500).send('Internal Server Error');
-        //                 });
-        //         }
-
-        //         //add to south if location is south
-
-        //         break;
-        //     case 'STADVDB35-Server0':
-        //         node1.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
-        //             .then((t) => {
-        //                 if(data.RegionName in luzon) {
-                            
-        //                 }
-        //                 return node1.query(`INSERT INTO appointments VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
-        //                     ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`, {
-        //                     transaction: t
-        //                 })
-        //                     .then(([results, metadata]) => {
-        //                         return t.commit().then(() => {
-        //                             console.log('Transaction committed successfully.'); 
-        //                         });
-        //                     })
-        //                     .catch((err) => {
-        //                         return t.rollback().then(() => {
-        //                             console.log('Transaction Failed: ', err);
-        //                         });
-        //                     });
-        //             })
-        //             .catch((err) => {
-        //                 console.log('Error starting transaction: ', err);
-        //             });
-        //         break;
-        //     case 'STADVDB35-Server1':
-        //         node2.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
-        //             .then((t) => {
-        //                 return node2.query(`INSERT INTO luzon VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
-        //                     ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`, {
-        //                     transaction: t
-        //                 })
-        //                     .then(([results, metadata]) => {
-        //                         return t.commit().then(() => {
-        //                             console.log('Transaction committed successfully.'); 
-        //                         });
-        //                     })
-        //                     .catch((err) => {
-        //                         return t.rollback().then(() => {
-        //                             console.log('Transaction Failed: ', err);
-        //                         });
-        //                     });
-        //             })
-        //             .catch((err) => {
-        //                 console.log('Error starting transaction: ', err);
-        //             });
-        //         break;
-        //     case 'STADVDB35-Server2':
-        //         node3.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
-        //         .then((t) => {
-        //             return node3.query(`INSERT INTO south VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
-        //                 ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`, {
-        //                 transaction: t
-        //             })
-        //                 .then(([results, metadata]) => {
-        //                     return t.commit().then(() => {
-        //                         console.log('Transaction committed successfully.'); 
-        //                     });
-        //                 })
-        //                 .catch((err) => {
-        //                     return t.rollback().then(() => {
-        //                         console.log('Transaction Failed: ', err);
-        //                     });
-        //                 });
-        //         })
-        //         .catch((err) => {
-        //             console.log('Error starting transaction: ', err);
-        //         });
-        //         break;
-        //     default:
-        //         node1.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
-        //             .then((t) => {
-        //                 return node1.query(`INSERT INTO appointments VALUES (${data.apptid}, ${data.TimeQueued}, ${data.QueueDate}, ${data.StartTime}, ${data.EndTime}, ${data.pxid}, 
-        //                     ${data.age}, ${data.gender}, ${data.doctorid}, ${data.hospitalname}, ${data.City}, ${data.Province}, ${data.RegionName},)`, {
-        //                     transaction: t
-        //                 })
-        //                     .then(([results, metadata]) => {
-        //                         return t.commit().then(() => {
-        //                             console.log('Transaction committed successfully.'); 
-        //                         });
-        //                     })
-        //                     .catch((err) => {
-        //                         return t.rollback().then(() => {
-        //                             console.log('Transaction Failed: ', err);
-        //                         });
-        //                     });
-        //             })
-        //             .catch((err) => {
-        //                 console.log('Error starting transaction: ', err);
-        //             });           
+        //update corresponding slave node
+        console.log('REGIONNAME: ', data.RegionName in luzon)
+        if(hasValue(luzon, data.RegionName)){
+            node2.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+                .then((t) => {
+                    return node2.query(`INSERT INTO appointments VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
+                    '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.City}', '${data.Province}', '${data.RegionName}')`, {
+                        transaction: t
+                    })
+                        .then(([results, metadata]) => {
+                            return t.commit().then(() => {
+                                console.log('Transaction committed successfully.'); 
+                            });
+                        })
+                        .catch((err) => {
+                            return t.rollback().then(() => {
+                                console.log('Transaction Failed: ', err);
+                            });
+                        });
+                })
+                .catch((err) => {
+                    console.log('Error starting transaction: ', err);
+                });
+        } else if (hasValue(south, data.RegionName)) {
+            node3.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+                .then((t) => {
+                    return node3.query(`INSERT INTO appointments VALUES ('${data.apptid}', '${data.TimeQueued}', '${data.QueueDate}', '${data.StartTime}', '${data.EndTime}', '${data.pxid}', 
+                    '${data.age}', '${data.gender}', '${data.doctorid}', '${data.hospitalname}', '${data.City}', '${data.Province}', '${data.RegionName}')`, {
+                        transaction: t
+                    })
+                        .then(([results, metadata]) => {
+                            return t.commit().then(() => {
+                                console.log('Transaction committed successfully.'); 
+                            });
+                        })
+                        .catch((err) => {
+                            return t.rollback().then(() => {
+                                console.log('Transaction Failed: ', err);
+                            });
+                        });
+                })
+                .catch((err) => {
+                    console.log('Error starting transaction: ', err);
+                });
+        }   
 
 
     // TEST AREA
