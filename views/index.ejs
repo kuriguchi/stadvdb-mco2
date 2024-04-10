@@ -72,10 +72,83 @@
 
         <!-- display the result -->
         <div id="result"></div>
+
+        <!-- Button to toggle create form -->
+        <button id="toggleCreateForm">Create New Appointment</button>
+
+        <!-- form to input new appointment data -->
+        <form id="createForm" class="create-form" style="display: none;">
+            <label for="apptid">ApptID:</label>
+            <input type="text" id="apptid" name="apptid" placeholder="Enter ApptID">
+            <label for="timeQueued">Time Queued:</label>
+            <input type="text" id="timeQueued" name="timeQueued" placeholder="Enter Time Queued">
+            <label for="queueDate">Queue Date:</label>
+            <input type="text" id="queueDate" name="queueDate" placeholder="Enter Queue Date">
+            <label for="startTime">Start Time:</label>
+            <input type="text" id="startTime" name="startTime" placeholder="Enter Start Time">
+            <label for="endTime">End Time:</label>
+            <input type="text" id="endTime" name="endTime" placeholder="Enter End Time">
+            <label for="pxid">PxID:</label>
+            <input type="text" id="pxid" name="pxid" placeholder="Enter PxID">
+            <label for="age">Age:</label>
+            <input type="text" id="age" name="age" placeholder="Enter Age">
+            <label for="gender">Gender:</label>
+            <input type="text" id="gender" name="gender" placeholder="Enter Gender">
+            <label for="doctorid">Doctor ID:</label>
+            <input type="text" id="doctorid" name="doctorid" placeholder="Enter Doctor ID">
+            <label for="hospitalname">Hospital Name:</label>
+            <input type="text" id="hospitalname" name="hospitalname" placeholder="Enter Hospital Name">
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" placeholder="Enter City">
+            <label for="province">Province:</label>
+            <input type="text" id="province" name="province" placeholder="Enter Province">
+            <label for="regionName">Region Name:</label>
+            <input type="text" id="regionName" name="regionName" placeholder="Enter Region Name">
+            <input type="submit" value="Create">
+        </form>
     </div>
 
     <script>
-        //submit form using AJAX
+        //toggle visibility of create form
+        document.getElementById("toggleCreateForm").addEventListener("click", function() {
+            var createForm = document.getElementById("createForm");
+            createForm.style.display = createForm.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        //CREATE new appointment
+        document.getElementById("createForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach(function(value, key){
+                data[key] = value;
+            });
+
+            // Send request to backend to create new appointment
+            fetch(`/createOneAppt`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('New appointment created:', data);
+                // Display the newly created appointment in the result div
+                document.getElementById("result").innerHTML = `
+                    <div class="transaction" id="transaction">
+                        <h2>New Appointment</h2>
+                        <!-- Display appointment details here -->
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        //GET/RETRIEVE based on entered apptID
         document.getElementById("inputForm").addEventListener("submit", function(event) {
             event.preventDefault();
             const apptid = document.getElementById("apptid").value;
@@ -105,13 +178,13 @@
                         </div>
                     `;
 
-                    //add event listener to the edit button
+                    //edit button
                     document.getElementById("editButton").addEventListener("click", function() {
                         //enable editing of the data
                         enableEditing();
                     });
 
-                    //add event listener to the delete button
+                    //delete button
                     document.getElementById("deleteButton").addEventListener("click", function() {
                         //delete the data
                         deleteData(data.apptid);
