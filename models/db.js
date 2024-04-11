@@ -11,8 +11,9 @@ const node1 = new Sequelize(
     process.env.SERVER0_USER,
     process.env.SERVER0_PASS,
     {
-        host: 'ccscloud.dlsu.edu.ph', 
-        port: process.env.SERVER0_PORT,
+        //host: 'ccscloud.dlsu.edu.ph',
+        host: process.env.SERVER0_HOST, 
+        // port: process.env.SERVER0_PORT,
         dialect: 'mysql'
     }
 );
@@ -22,8 +23,8 @@ const node2 = new Sequelize(
     process.env.SERVER1_USER,
     process.env.SERVER1_PASS,
     {
-        host: 'ccscloud.dlsu.edu.ph', 
-        port: process.env.SERVER1_PORT,
+        host: process.env.SERVER1_HOST, 
+        // port: process.env.SERVER1_PORT,
         dialect: 'mysql'
     }
 );
@@ -33,8 +34,9 @@ const node3 = new Sequelize(
     process.env.SERVER2_USER,
     process.env.SERVER2_PASS,
     {
-        host: 'ccscloud.dlsu.edu.ph', 
-        port: process.env.SERVER2_PORT,
+        //host: 'ccscloud.dlsu.edu.ph', 
+        host: process.env.SERVER2_HOST,
+        //port: process.env.SERVER2_PORT,
         dialect: 'mysql'
     }
 );
