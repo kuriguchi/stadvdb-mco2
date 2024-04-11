@@ -1,4 +1,3 @@
-const { Cluster } = require("puppeteer-cluster");
 const Sequelize = require('sequelize');
 const db = require('../models/db.js');
 
@@ -15,43 +14,18 @@ const concurrencyCase2 = async () => {
 
     // Case #2: At least one transaction in the three nodes is writing (update / delete) and the other concurrent transactions are reading the same data item.
 
+    let start_time = Date.now();
     await Promise.all([
-
-        // node 3 reads
-        node3.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
-            .then((t) => {
-                return node3.query(`SELECT * FROM appointments WHERE apptid LIKE '09B6FE2CF8E815A65FECFD6EC5FECFD5'`, {
-                    transaction: t
-                })
-                    .then(([results, metadata]) => {
-                        return t.commit().then(() => {
-                            console.log('Transaction committed successfully.');
-                            console.log('Transaction 1 - NODE 3 First Read:'); 
-                            console.log(results[0])
-                            apptData.push(results[0])
-                        });
-                    })
-        
-                    .catch((err) => {
-                        return t.rollback().then(() => {
-                            console.log('Transaction Failed: ', err);
-                        });
-                    });
-            })
-        
-            .catch((err) => {
-                console.log('Error starting transaction: ', err);
-            }),
 
         //node1 modifies
         node1.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
             .then((t) => {
-                return node1.query(`UPDATE appointments SET age = '99.0' WHERE apptid LIKE '09B6FE2CF8E815A65FECFD6EC5FECFD5'`, {
+                return node1.query(`UPDATE appointments SET age = '21.0' WHERE apptid LIKE '09B6FE2CF8E815A65FECFD6EC5FECFD5'`, {
                     transaction: t
                 })
                     .then(([results, metadata]) => {
                         return t.commit().then(() => {
-                            console.log('Transaction 2 - UPDATE NODE 1 committed successfully.');
+                            console.log('Transaction 1 - UPDATE NODE 1 committed successfully.');
                         });
                     })
         
@@ -69,12 +43,38 @@ const concurrencyCase2 = async () => {
         //node3 also modifies
         node3.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
             .then((t) => {
-                return node3.query(`UPDATE appointments SET age = '99.0' WHERE apptid LIKE '09B6FE2CF8E815A65FECFD6EC5FECFD5'`, {
+                return node3.query(`UPDATE appointments SET age = '21.0' WHERE apptid LIKE '09B6FE2CF8E815A65FECFD6EC5FECFD5'`, {
                     transaction: t
                 })
                     .then(([results, metadata]) => {
                         return t.commit().then(() => {
-                            console.log('Transaction 2 - UPDATE NODE 3 committed successfully.');
+                            console.log('Transaction 1 - UPDATE NODE 3 committed successfully.');
+                        });
+                    })
+        
+                    .catch((err) => {
+                        return t.rollback().then(() => {
+                            console.log('Transaction Failed: ', err);
+                        });
+                    });
+            })
+        
+            .catch((err) => {
+                console.log('Error starting transaction: ', err);
+            }),
+
+        // node 1 reads
+        node1.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
+            .then((t) => {
+                return node1.query(`SELECT * FROM appointments WHERE apptid LIKE '09B6FE2CF8E815A65FECFD6EC5FECFD5'`, {
+                    transaction: t
+                })
+                    .then(([results, metadata]) => {
+                        return t.commit().then(() => {
+                            console.log('Transaction committed successfully.');
+                            console.log('Transaction 2 - NODE 3 First Read:'); 
+                            console.log(results[0])
+                            apptData.push(results[0])
                         });
                     })
         
@@ -117,12 +117,9 @@ const concurrencyCase2 = async () => {
     ]);
 
     console.log('All transactions completed.');
-    console.log('Are Results Equal: ');
-    if (apptData.length == 2 && apptData[0] === apptData[1]) {
-        console.log(true);
-    } else {
-        console.log(false);
-    }
+    
+    let time_taken = (Date.now() - start_time) / 1000;
+    console.log("Total time taken : " + time_taken + " seconds");
 }
 
 module.exports = { concurrencyCase2 };

@@ -1,4 +1,3 @@
-const { Cluster } = require("puppeteer-cluster");
 const Sequelize = require('sequelize');
 const db = require('../models/db.js');
 
@@ -15,6 +14,7 @@ const concurrencyCase1 = async () => {
 
     // Case #1: Concurrent transactions in two or more nodes are reading the same data item.
 
+    let start_time = Date.now();
     await Promise.all([
         node1.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE })
             .then((t) => {
@@ -68,12 +68,8 @@ const concurrencyCase1 = async () => {
     ]);
 
     console.log('All transactions completed.');
-    console.log('Are Results Equal: ');
-    if (apptData.length == 2 && apptData[0] === apptData[1]) {
-        console.log(true);
-    } else {
-        console.log(false);
-    }
+    let time_taken = (Date.now() - start_time) / 1000;
+    console.log("Total time taken : " + time_taken + " seconds");
 }
 
 module.exports = { concurrencyCase1 };
