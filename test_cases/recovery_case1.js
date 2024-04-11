@@ -1,4 +1,3 @@
-// const db = require('../models/db.js');
 const Sequelize = require('sequelize');
 const dotenv = require('dotenv');
 

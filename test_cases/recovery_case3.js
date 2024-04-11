@@ -1,4 +1,3 @@
-const { Cluster } = require('puppeteer-cluster');
 const Sequelize = require('sequelize');
 const dotenv = require('dotenv');
 
