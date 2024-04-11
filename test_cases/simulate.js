@@ -17,8 +17,8 @@ const runTest = async () => {
     
     await RecoveryCase1.recoveryCase1();
     await RecoveryCase2.recoveryCase2();
-    await RecoveryCase4.recoveryCase4();
     await RecoveryCase3.recoveryCase3();
+    await RecoveryCase4.recoveryCase4();
 }
 
 runTest();

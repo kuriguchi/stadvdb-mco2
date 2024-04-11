@@ -112,7 +112,12 @@ const recoveryCase2 = async () =>{
                                                                 //compare all results 
                                                                 if(JSON.stringify(node1_data) === JSON.stringify(node2_data) ||
                                                                    JSON.stringify(node1_data) === JSON.stringify(node3_data)){
+
                                                                     console.log('Nodes are Equal. Recovery Successful.');
+
+                                                                    console.log('RESULTS OF NODE 1: ', node1_data);
+                                                                    console.log('RESULTS OF NODE 2: ', node2_data);
+                                                                    console.log('RESULTS OF NODE 3: ', node3_data);
                                                                 } else {
                                                                     console.log('Recovery Unsuccessful.')
                                                                 }
